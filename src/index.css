@@ -1,0 +1,113 @@
+/* CashRegister.css */
+
+body {
+  font-family: 'Arial', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background-color: #f8f9fa; /* Light background color */
+  max-width: 100%;
+}
+
+.container {
+  background-color: #ffffff; /* white background color */
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  text-align: center;
+}
+
+h1 {
+  text-align: center;
+  color: gray;
+}
+
+.total-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.total-label {
+  margin-right: 10px;
+  font-weight: bold;
+  font-size: 18px;
+  color: #2c3e50; /* dar gray text color */
+}
+
+.total-amount {
+  font-size: 32px;
+  font-weight: bold;
+  color: #27ae60; /* Green color */
+}
+
+.available-moneys {
+  margin-top: 20px;
+  font-size: 16px;
+  color: rgb(136, 136, 153); /* Salmon color */
+  text-align: center;
+}
+
+
+.buttons {
+  display: flex;
+  flex-direction: column; /*  buttons vertically */
+  gap: 8px; /* Space between buttons */
+  justify-content: center; /* Center  buttons horizontally */
+  align-items: center; /* Center  buttons vertically */
+}
+
+
+.denomination {
+  margin: 10px;
+}
+
+button {
+  background-color: salmon; /* blue color */
+  color: #ffffff;
+  border: none;
+  padding: 15px;
+  cursor: pointer;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+button.remove {
+  background-color: #e74c3c; /* Salmon color 4 Remove button */
+}
+
+button:hover {
+  background-color: lightsteelblue; /* darker shade of blue on hover */
+}
+
+input {
+  padding: 10px;
+  font-size: 16px;
+  width: 100px;
+  height: 10px;
+}
+
+.dispense-section {
+  display: block;
+  justify-content: center;
+  padding: 12px;
+}
+
+.request-total {
+  margin: 10px;
+  padding: 10px;
+  background-color: rgb(93, 132, 93);
+}
+
+.request-total:hover {
+  background-color:gray;
+}
+
+
+button + button {
+  margin: 4px;
+}
