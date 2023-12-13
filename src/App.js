@@ -10,7 +10,6 @@ const CashRegister = () => {
   const [requestedChange, setRequestedChange] = useState(0);
 
   useEffect(() => {
-    // Update available moneys string whenever cashInDrawer changes
     const availableMoneysString = cashInDrawer.map(([denomination, value]) => `${value}x$${denomination}`).join(' ');
     setAvailableMoneysString(availableMoneysString);
   }, [cashInDrawer]);
@@ -35,7 +34,6 @@ const CashRegister = () => {
   };
 
   const dispenseChange = requestedAmount => {
-    // Check for the special case: 1x $20, 1x $10, 1x $5, 1x $2, and 1x $1 in the drawer
     const specialCase = [20, 10, 5, 2, 1].every(denomination =>
       cashInDrawer.some(([d, value]) => d === denomination && value > 0)
     );
@@ -45,7 +43,6 @@ const CashRegister = () => {
       return;
     }
 
-    // Check for the case where $20 is requested
     if (requestedAmount === 20) {
       const availableCount = cashInDrawer.find(([d]) => d === 20)?.[1] || 0;
       if (availableCount > 0) {
@@ -68,7 +65,6 @@ const CashRegister = () => {
     const change = [];
     let remainingChange = requestedAmount;
 
-    // Iterate through denominations in descending order
     for (let i = denominations.length - 1; i >= 0; i--) {
       const denomination = denominations[i];
       const availableCount = cashInDrawer.find(([d]) => d === denomination)?.[1] || 0;
@@ -80,7 +76,6 @@ const CashRegister = () => {
       }
     }
 
-    // Check if remainingChange is zero to determine success
     if (remainingChange === 0) {
       // Update register and total, ensuring values do not go below zero
       const updatedCashInDrawer = cashInDrawer.map(([denomination, value]) => {
@@ -99,8 +94,6 @@ const CashRegister = () => {
     }
   };
 
-
-
   const handleInputChange = event => {
     setRequestedChange(parseFloat(event.target.value) || 0);
   };
@@ -108,7 +101,6 @@ const CashRegister = () => {
   const requestChange = () => {
     dispenseChange(requestedChange);
   };
-
 
   return (
     <div>
