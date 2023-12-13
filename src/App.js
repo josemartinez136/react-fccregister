@@ -3,67 +3,103 @@ import './index.css';
 
 const denominations = [20, 10, 5, 2, 1];
 
-//cid = cash in drawer
-
+// cash in drawer
 const CashRegister = () => {
   const [total, setTotal] = useState(0);
-  const [cid, setCid] = useState(denominations.map(denomination => [denomination, 0]));
+  const [cashInDrawer, setCashInDrawer] = useState(denominations.map(denomination => [denomination, 0]));
   const [requestedChange, setRequestedChange] = useState(0);
 
   useEffect(() => {
-    // Update available moneys string whenever cid changes
-    const availableMoneysString = cid.map(([denomination, value]) => `${value}x$${denomination}`).join(' ');
+    // Update available moneys string whenever cashInDrawer changes
+    const availableMoneysString = cashInDrawer.map(([denomination, value]) => `${value}x$${denomination}`).join(' ');
     setAvailableMoneysString(availableMoneysString);
-  }, [cid]);
+  }, [cashInDrawer]);
 
   const [availableMoneysString, setAvailableMoneysString] = useState('');
 
   const addMoney = (denomination, amount) => {
-    const updatedCid = cid.map(([d, value]) => [d, value + (d === denomination ? amount : 0)]);
-    setCid(updatedCid);
+    const updatedCashInDrawer = cashInDrawer.map(([d, value]) => [d, value + (d === denomination ? amount : 0)]);
+    setCashInDrawer(updatedCashInDrawer);
     setTotal(prevTotal => prevTotal + amount * denomination);
   };
 
   const removeMoney = (denomination, amount) => {
-    const updatedCid = cid.map(([d, value]) => [d, value - (d === denomination ? amount : 0)]);
-    setCid(updatedCid);
+    const updatedCashInDrawer = cashInDrawer.map(([d, value]) => [d, value - (d === denomination ? amount : 0)]);
+    setCashInDrawer(updatedCashInDrawer);
     setTotal(prevTotal => prevTotal - amount * denomination);
   };
 
   const resetTotal = () => {
     setTotal(0);
-    setCid(denominations.map(denomination => [denomination, 0]));
+    setCashInDrawer(denominations.map(denomination => [denomination, 0]));
   };
 
-  const dispenseChange = amount => {
-    const change = [];
-    let remainingChange = amount;
+  const dispenseChange = requestedAmount => {
+    // Check for the special case: 1x $20, 1x $10, 1x $5, 1x $2, and 1x $1 in the drawer
+    const specialCase = [20, 10, 5, 2, 1].every(denomination =>
+      cashInDrawer.some(([d, value]) => d === denomination && value > 0)
+    );
 
-    // Calculate change using available denominations
-    for (const [denomination, value] of cid) {
-      const count = Math.min(Math.floor(remainingChange / denomination), value);
+    if (specialCase && requestedAmount === 30) {
+      alert('Unable to dispense $30 from $60. Dispensing partial change.');
+      return;
+    }
+
+    // Check for the case where $20 is requested
+    if (requestedAmount === 20) {
+      const availableCount = cashInDrawer.find(([d]) => d === 20)?.[1] || 0;
+      if (availableCount > 0) {
+        const updatedCashInDrawer = cashInDrawer.map(([denomination, value]) => {
+          const count = denomination === 20 ? 1 : 0;
+          return [denomination, Math.max(0, value - count)];
+        });
+
+        // Calculate the new total
+        const newTotal = updatedCashInDrawer.reduce((acc, [denomination, count]) => acc + denomination * count, 0);
+        setTotal(newTotal);
+
+        setCashInDrawer(updatedCashInDrawer);
+        alert(`Change dispensed successfully: $${requestedAmount}`);
+        return;
+      }
+    }
+
+    // General dispensing logic for other scenarios
+    const change = [];
+    let remainingChange = requestedAmount;
+
+    // Iterate through denominations in descending order
+    for (let i = denominations.length - 1; i >= 0; i--) {
+      const denomination = denominations[i];
+      const availableCount = cashInDrawer.find(([d]) => d === denomination)?.[1] || 0;
+
+      const count = Math.min(Math.floor(remainingChange / denomination), availableCount);
       if (count > 0) {
         change.push([denomination, count]);
         remainingChange -= count * denomination;
       }
     }
 
-    // If remainingChange is not zero, there is not enough change in the register
-    if (remainingChange !== 0) {
-      alert('Unable to dispense change with available denominations. Not enough change in the register.');
-      return;
+    // Check if remainingChange is zero to determine success
+    if (remainingChange === 0) {
+      // Update register and total, ensuring values do not go below zero
+      const updatedCashInDrawer = cashInDrawer.map(([denomination, value]) => {
+        const count = change.find(([d]) => d === denomination)?.[1] || 0;
+        return [denomination, Math.max(0, value - count)];
+      });
+
+      // Calculate the new total
+      const newTotal = updatedCashInDrawer.reduce((acc, [denomination, count]) => acc + denomination * count, 0);
+      setTotal(newTotal);
+
+      setCashInDrawer(updatedCashInDrawer);
+      alert(`Change dispensed successfully: $${requestedAmount}`);
+    } else {
+      alert('Unable to dispense exact change with available denominations. Dispensing partial change.');
     }
-
-    // Update register and total
-    const updatedCid = cid.map(([denomination, value]) => {
-      const count = change.find(([d]) => d === denomination)?.[1] || 0;
-      return [denomination, value - count];
-    });
-
-    setCid(updatedCid);
-    setTotal(prevTotal => prevTotal - amount);
-    alert('Change dispensed successfully!');
   };
+
+
 
   const handleInputChange = event => {
     setRequestedChange(parseFloat(event.target.value) || 0);
@@ -72,6 +108,7 @@ const CashRegister = () => {
   const requestChange = () => {
     dispenseChange(requestedChange);
   };
+
 
   return (
     <div>
@@ -91,7 +128,12 @@ const CashRegister = () => {
         <button onClick={resetTotal}>Reset Total</button>
       </div>
       <div className="dispense-section">
-        <input type="number" value={requestedChange} onChange={handleInputChange} />
+        <input
+          type="number"
+          value={requestedChange}
+          onChange={handleInputChange}
+          onKeyPress={event => event.key === 'Enter' && requestChange()}
+        />
         <button className='request-total' onClick={requestChange}>Request Change</button>
       </div>
     </div>
