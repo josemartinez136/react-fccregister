@@ -61,7 +61,6 @@ const CashRegister = () => {
       }
     }
 
-    // General dispensing logic for other scenarios
     const change = [];
     let remainingChange = requestedAmount;
 
@@ -77,13 +76,13 @@ const CashRegister = () => {
     }
 
     if (remainingChange === 0) {
-      // Update register and total, ensuring values do not go below zero
+      // Update register and total, so values do not go below zero
       const updatedCashInDrawer = cashInDrawer.map(([denomination, value]) => {
         const count = change.find(([d]) => d === denomination)?.[1] || 0;
         return [denomination, Math.max(0, value - count)];
       });
 
-      // Calculate the new total
+      // Calculate  new total
       const newTotal = updatedCashInDrawer.reduce((acc, [denomination, count]) => acc + denomination * count, 0);
       setTotal(newTotal);
 
